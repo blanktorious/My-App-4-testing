@@ -8,17 +8,17 @@ on:
     branches:
       - develop
 
+env:
+  ACR_NAME: acrtesting4.azurecr.io
+  IMAGE_NAME: myapp-develop
+  TAG: ${{ github.sha }}
+  APP_NAME: my-webapp-4-testing
+  RESOURCE_GROUP: 4-testing
+  SLOT_NAME: feature
+
 jobs:
   build-and-push:
     runs-on: ubuntu-latest
-
-    env:
-      ACR_NAME: acrtesting4.azurecr.io
-      IMAGE_NAME: myapp-develop
-      TAG: ${{ github.sha }}
-      APP_NAME: my-webapp-4-testing
-      RESOURCE_GROUP: 4-testing
-      SLOT_NAME: feature
 
     steps:
       - name: Checkout source
