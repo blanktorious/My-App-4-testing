@@ -14,17 +14,12 @@ jobs:
 
     env:
       ACR_NAME: acrtesting4.azurecr.io
-      IMAGE_NAME: myapptest4
+      IMAGE_NAME: myapp-develop
       TAG: ${{ github.sha }}
 
     steps:
       - name: Checkout source
         uses: actions/checkout@v3
-
-      # - name: Login via Azure CLI
-      #   uses: azure/login@v1
-      #   with:
-      #     creds: ${{ secrets.AZURE_CREDENTIALS }}
 
       - name: Log in to Azure Container Registry
         uses: azure/docker-login@v1
@@ -33,21 +28,18 @@ jobs:
           username: ${{ secrets.REGISTRY_USERNAME }}
           password: ${{ secrets.REGISTRY_PASSWORD }}
 
-      # - name: Set image tag
-      #   id: set_tag
-      #   run: |
-      #     COMMIT_HASH=${GITHUB_SHA::7}
-      #     if [ "$GITHUB_EVENT_NAME" == "pull_request" ]; then
-      #       TAG=feature-$COMMIT_HASH
-      #       echo "TAG=$TAG" >> $GITHUB_ENV
-      #     else
-      #       TAG=develop-$COMMIT_HASH
-      #       echo "TAG=$TAG" >> $GITHUB_ENV
+      - name: Normalize tag from branch name
+        id: tag
+        run: |
+          BRANCH=${GITHUB_REF_NAME}
+          SAFE_BRANCH=$(echo "$BRANCH" | tr '[:upper:]' '[:lower:]' | sed 's#[^a-z0-9]#-#g')
+          SHORT_SHA=${GITHUB_SHA::7}
+          echo "tag=${SAFE_BRANCH}-${SHORT_SHA}" >> $GITHUB_OUTPUT
 
       - name: Build Docker image
         run: |
-          docker build -t $ACR_NAME/$IMAGE_NAME:$TAG ./WebApplication1
+          docker build -t $ACR_NAME/$IMAGE_NAME:${{ steps.tag.outputs.tag }} ./WebApplication1
 
       - name: Push Docker image
         run: |
-          docker push $ACR_NAME/$IMAGE_NAME:$TAG
+          docker push $ACR_NAME/$IMAGE_NAME:${{ steps.tag.outputs.tag }}
