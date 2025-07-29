@@ -64,6 +64,14 @@ jobs:
         uses: azure/login@v1
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Docker Login to ACR
+        uses: azure/docker-login@v1
+        with:
+          login-server: ${{ secrets.REGISTRY_LOGIN_SERVER }}
+          username: ${{ secrets.REGISTRY_USERNAME }}
+          password: ${{ secrets.REGISTRY_PASSWORD }}
+
       - name: Deploy image to existing slot
         run: |
           az webapp config container set \
@@ -72,4 +80,3 @@ jobs:
             --slot $SLOT_NAME \
             --container-image-name $ACR_NAME/$IMAGE_NAME:${{ needs.build-and-push.outputs.tag }} \
             --container-registry-url https://$ACR_NAME
-            --enable-managed-identity
