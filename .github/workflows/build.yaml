@@ -60,6 +60,10 @@ jobs:
     needs: build-and-push
 
     steps:
+      - name: Azure Login
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
       - name: Deploy image to existing slot
         run: |
           az webapp config container set \
