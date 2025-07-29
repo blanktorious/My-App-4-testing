@@ -46,7 +46,7 @@ jobs:
 
       - name: Build Docker image
         run: |
-          docker build -t $ACR_NAME/$IMAGE_NAME:$TAG .
+          docker build -t $ACR_NAME/$IMAGE_NAME:$TAG ./WebApplication1
 
       - name: Push Docker image
         run: |
