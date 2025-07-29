@@ -73,5 +73,4 @@ jobs:
             --slot $SLOT_NAME \
             --container-image-name $ACR_NAME/$IMAGE_NAME:${{ needs.build-and-push.outputs.tag }} \
             --container-registry-url https://$ACR_NAME \
-            --container-registry-password ${{ secrets.REGISTRY_PASSWORD }}
-            --debug
+            --container-registry-password ${{ secrets.ACR_PASSWORD }}
