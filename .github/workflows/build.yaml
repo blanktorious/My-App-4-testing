@@ -28,13 +28,19 @@ jobs:
           username: ${{ secrets.REGISTRY_USERNAME }}
           password: ${{ secrets.REGISTRY_PASSWORD }}
 
-      - name: Normalize tag from branch name
+      - name: Generate Docker tag from branch name
         id: tag
         run: |
-          BRANCH=${GITHUB_REF_NAME}
+          if [[ "${{ github.event_name }}" == "pull_request" ]]; then
+            BRANCH="${{ github.event.pull_request.head.ref }}"
+          else
+            BRANCH="${{ github.ref_name }}"
+          fi
+
           SAFE_BRANCH=$(echo "$BRANCH" | tr '[:upper:]' '[:lower:]' | sed 's#[^a-z0-9]#-#g')
           SHORT_SHA=${GITHUB_SHA::7}
           echo "tag=${SAFE_BRANCH}-${SHORT_SHA}" >> $GITHUB_OUTPUT
+
 
       - name: Build Docker image
         run: |
