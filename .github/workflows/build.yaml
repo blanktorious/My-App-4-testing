@@ -31,16 +31,16 @@ jobs:
           username: ${{ secrets.REGISTRY_USERNAME }}
           password: ${{ secrets.REGISTRY_PASSWORD }}
 
-      - name: Set image tag
-        id: set_tag
-        run: |
-          COMMIT_HASH=${GITHUB_SHA::7}
-          if [ "$GITHUB_EVENT_NAME" == "pull_request" ]; then
-            TAG=feature-$COMMIT_HASH
-            echo "TAG=$TAG" >> $GITHUB_ENV
-          else
-            TAG=develop-$COMMIT_HASH
-            echo "TAG=$TAG" >> $GITHUB_ENV
+      # - name: Set image tag
+      #   id: set_tag
+      #   run: |
+      #     COMMIT_HASH=${GITHUB_SHA::7}
+      #     if [ "$GITHUB_EVENT_NAME" == "pull_request" ]; then
+      #       TAG=feature-$COMMIT_HASH
+      #       echo "TAG=$TAG" >> $GITHUB_ENV
+      #     else
+      #       TAG=develop-$COMMIT_HASH
+      #       echo "TAG=$TAG" >> $GITHUB_ENV
 
       - name: Build Docker image
         run: |
