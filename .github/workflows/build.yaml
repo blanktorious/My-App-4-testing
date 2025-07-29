@@ -72,3 +72,4 @@ jobs:
             --slot $SLOT_NAME \
             --container-image-name $ACR_NAME/$IMAGE_NAME:${{ needs.build-and-push.outputs.tag }} \
             --container-registry-url https://$ACR_NAME
+            --enable-managed-identity
