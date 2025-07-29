@@ -1,0 +1,46 @@
+name: Build and Push to ACR
+
+on:
+  push:
+    branches:
+      - develop
+  pull_request:
+    branches:
+      - develop
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+
+    env:
+      ACR_NAME: acrtesting4.azurecr.io
+      IMAGE_NAME: myapptest4
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v3
+
+      - name: Log in to Azure Container Registry
+        uses: azure/docker-login@v1
+        with:
+          login-server: ${{ env.ACR_NAME }}
+          username: ${{ secrets.ACR_USERNAME }}
+          password: ${{ secrets.ACR_PASSWORD }}
+
+      - name: Set image tag
+        id: set_tag
+        run: |
+          COMMIT_HASH=${GITHUB_SHA::7}
+          if [ "$GITHUB_EVENT_NAME" == "pull_request" ]; then
+            TAG=feature-$COMMIT_HASH
+            echo "TAG=$TAG" >> $GITHUB_ENV
+          else
+            TAG=develop-$COMMIT_HASH
+            echo "TAG=$TAG" >> $GITHUB_ENV
+
+      - name: Build Docker image
+        run: |
+          docker build -t $ACR_NAME/$IMAGE_NAME:$TAG .
+
+      - name: Push Docker image
+        run: |
+          docker push $ACR_NAME/$IMAGE_NAME:$TAG
