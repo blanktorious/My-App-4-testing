@@ -18,7 +18,7 @@ jobs:
       TAG: ${{ github.sha }}
       APP_NAME: my-webapp-4-testing
       RESOURCE_GROUP: 4-testing
-      SLOT_NAME: preview-slot
+      SLOT_NAME: feature
 
     steps:
       - name: Checkout source
@@ -65,29 +65,11 @@ jobs:
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
 
-      - name: Create slot if needed
-        run: |
-          SLOT_NAME="${{ needs.build-and-push.outputs.slot }}"
-          SLOT_EXISTS=$(az webapp deployment slot list \
-            --resource-group ${{ env.RESOURCE_GROUP }} \
-            --name ${{ env.APP_NAME }} \
-            --query "[?name=='$SLOT_NAME'] | length(@)" -o tsv)
-
-          if [ "$SLOT_EXISTS" -eq "0" ]; then
-            echo "Creating slot: $SLOT_NAME"
-            az webapp deployment slot create \
-              --name ${{ env.APP_NAME }} \
-              --resource-group ${{ env.RESOURCE_GROUP }} \
-              --slot $SLOT_NAME
-          else
-            echo "Slot $SLOT_NAME already exists"
-          fi
-
-      - name: Deploy image to slot
+      - name: Deploy image to existing slot
         run: |
           az webapp config container set \
             --name ${{ env.APP_NAME }} \
             --resource-group ${{ env.RESOURCE_GROUP }} \
-            --slot ${{ needs.build-and-push.outputs.slot }} \
+            --slot ${{ env.SLOT_NAME }} \
             --docker-custom-image-name ${{ env.ACR_NAME }}/${{ env.IMAGE_NAME }}:${{ needs.build-and-push.outputs.tag }} \
             --docker-registry-server-url https://${{ env.ACR_NAME }}
