@@ -28,7 +28,7 @@ jobs:
           username: ${{ secrets.REGISTRY_USERNAME }}
           password: ${{ secrets.REGISTRY_PASSWORD }}
 
-      - name: Generate Docker tag from branch name
+      - name: Generate custom Docker tag
         id: tag
         run: |
           if [[ "${{ github.event_name }}" == "pull_request" ]]; then
@@ -37,10 +37,12 @@ jobs:
             BRANCH="${{ github.ref_name }}"
           fi
 
-          SAFE_BRANCH=$(echo "$BRANCH" | tr '[:upper:]' '[:lower:]' | sed 's#[^a-z0-9]#-#g')
-          SHORT_SHA=${GITHUB_SHA::7}
-          echo "tag=${SAFE_BRANCH}-${SHORT_SHA}" >> $GITHUB_OUTPUT
+          # Extract prefix and ticket ID: feature/ABC-123-anything → feature-ABC-123
+          TYPE=$(echo "$BRANCH" | cut -d'/' -f1)
+          TICKET=$(echo "$BRANCH" | cut -d'/' -f2 | cut -d'-' -f1,2)
+          SAFE_TAG="${TYPE}-${TICKET}-${GITHUB_SHA::7}"
 
+          echo "tag=$SAFE_TAG" >> $GITHUB_OUTPUT
 
       - name: Build Docker image
         run: |
