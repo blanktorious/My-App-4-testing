@@ -11,7 +11,7 @@ jobs:
     env:
       APP_NAME: my-webapp-4-testing
       RESOURCE_GROUP: 4-testing
-      SLOT_NAME: my-webapp-4-testing-development
+      SLOT_NAME: development
 
     steps:
       - name: Checkout code
